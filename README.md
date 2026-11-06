@@ -38,5 +38,4 @@ index.html  (screens + business rules)  --fetch POST-->  api.php (PDO)  -->  MyS
 ## Known limitations
 - The **Skip +30 min** demo button changes a shared demo clock. Remove it (and the `offset` exception in `api.php`) for production.
 - Staff sign-up requires an admin session by design.
-- No HTTPS or CSRF tokens; add both before real deployment.
 - If you change `schema.sql` after importing, drop the `library_pods` database and re-import it.
