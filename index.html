@@ -58,7 +58,7 @@ async update(t,id,p){this.d=this._r();Object.assign(this.d[t].find(x=>x.id===id)
 async kv(k,v){this.d=this._r();if(v===undefined)return structuredClone(this.d.kv[k]);this.d.kv[k]=v;this._w()},
 async reset(){this.d=seed();this._w()}};
 const Api={async call(op,p={}){const r=await fetch("api.php",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({op,...p})});
-if(r.status===401&&op!=="login"){try{sessionStorage.clear()}catch(e){}location.reload();return}
+if(r.status===401&&op!=="login"&&ME){try{sessionStorage.clear()}catch(e){}location.reload();return}
 const j=await r.json();if(!r.ok||j.error)throw Error(j.error||"Server error");return j.data},
 init:()=>Api.call("init"),all:t=>Api.call("all",{t}),insert:(t,row)=>Api.call("insert",{t,row}),update:(t,id,patch)=>Api.call("update",{t,id,patch}),kv:(k,v)=>Api.call("kv",{k,v}),reset:()=>Api.call("reset")};
 let DB=Api;
@@ -129,7 +129,7 @@ V.sets=async()=>{if(ME.role!=="admin")return stfShell("sets","STAFF – SETTINGS
 const c=await Settings.get(),st=await DB.all("staff"),f=(i,l,v,t="number")=>`<div><label>${l}</label><input id="${i}" type="${t}" value="${v}"></div>`;
 return stfShell("sets","STAFF – SETTINGS",`<div class="two">${f("s_p","Number of pods",c.pods)}${f("s_m","Max session length (hrs)",c.maxHrs)}${f("s_c","Cooldown (mins)",c.cooldown)}${f("s_g","Overdue grace period (mins)",c.grace)}${f("s_o","Terminal opens (blank = no limit)",c.open,"time")}${f("s_x","Terminal closes",c.close,"time")}</div><div class="alert" style="display:block"><b>Staff Accounts</b>${st.map(x=>`<div>${esc(x.email||x.sid)} · ${x.role} · <a href="#" data-act="editstaff" data-id="${x.id}"><b>[Edit]</b></a></div>`).join("")}</div><div id="err"></div><button class="btn" data-act="go" data-v="sets">RESET</button> <button class="btn ok" data-act="savecfg">SAVE CHANGES</button>`)};
 
-async function render(soft){OFF=(await DB.kv("offset"))||0;const ok=ME?(ME.t==="staff"?STAFF:STU).includes(R.v):!STAFF.concat(STU).includes(R.v);if(!ok)R={v:ME?(ME.t==="staff"?"dash":"home"):"login"};
+async function render(soft){OFF=ME?(await DB.kv("offset"))||0:0;const ok=ME?(ME.t==="staff"?STAFF:STU).includes(R.v):!STAFF.concat(STU).includes(R.v);if(!ok)R={v:ME?(ME.t==="staff"?"dash":"home"):"login"};
 const h=await V[R.v](),k=h.replace(/(data-until="\d+">)[^<]*/g,"$1");if(k!==LAST||!soft){$("#app").innerHTML=h;LAST=k}tick()}
 const go=v=>{R={v};return render()},tick=()=>document.querySelectorAll("[data-until]").forEach(e=>e.textContent=hms(+e.dataset.until-T()));
 const openM=(h,lt)=>{$("#modal").innerHTML=`<div class="dlg ${lt?"lt":""}">${h}</div>`},closeM=()=>{$("#modal").innerHTML=""};
