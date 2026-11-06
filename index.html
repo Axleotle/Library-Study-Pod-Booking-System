@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Library Pod System</title>
+<style>
+:root{--m:#6b0606;--r:#a52626;--g:#ffcc00;--ok:#0f7a40;--bad:#d81f1f;--bg:#fff;--tx:#1a1a1a;--card:#fff;--mut:#666;--line:#222;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root,:root[data-theme="dark"],:root[data-theme="light"]{color-scheme:light;--bg:#fff;--tx:#1a1a1a;--card:#fff;--mut:#666;--line:#222}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 Georgia,"Times New Roman",serif}
+.bar{background:var(--m);color:#fff;display:flex;justify-content:space-between;align-items:center;padding:16px 28px;gap:12px;flex-wrap:wrap}.bar h1{margin:0;font-size:24px;font-weight:400}
+.wrap{padding:20px 28px 100px;max-width:1000px;margin:auto}
+.tabs{display:inline-flex;border:2px solid #000;flex-wrap:wrap}.tabs button{background:var(--r);color:#fff;border:0;border-right:2px solid #000;padding:12px 20px;min-height:44px;font:inherit;font-weight:bold;cursor:pointer}.tabs .on{background:#e57373}
+.split{display:flex;min-height:100vh}.side{background:var(--m);color:var(--g);flex:0 0 33%;padding:40px;display:flex;flex-direction:column;justify-content:center}.side h2{font-size:40px;line-height:1.1;margin:0 0 8px}.side small{color:#fff;font-size:20px}
+.main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
+@media(max-width:700px){.split{flex-direction:column}.side{flex:none;padding:24px}}
+.card{border:3px solid var(--r);border-radius:14px;padding:22px;width:100%;max-width:400px;background:var(--card)}
+.ttl{background:var(--r);color:#fff;text-align:center;padding:10px;border-radius:8px;margin-bottom:14px;font-weight:bold}
+input,select{width:100%;padding:9px 10px;border:1.5px solid var(--r);border-radius:8px;font:inherit;background:var(--bg);color:var(--tx);margin:4px 0 12px;min-height:44px}input[type=checkbox]{width:24px;height:24px;min-height:0;margin:0 10px 0 0;flex:none}.dlg label:has(input[type=checkbox]){display:flex;align-items:center;min-height:44px;font-weight:normal}a[data-act]{display:inline-flex;align-items:center;min-height:44px;padding:0 6px}td .btn{margin:2px 0}
+label{font-weight:bold;font-size:14px}.c{text-align:center}
+.btn{background:var(--r);color:#fff;border:0;border-radius:8px;padding:10px 18px;min-height:44px;min-width:44px;font:inherit;cursor:pointer}.btn.ok{background:var(--ok)}.btn.gr{background:#555}.btn.sm{padding:8px 14px;font-size:14px}.btn.on{outline:3px solid var(--g)}
+table{width:100%;border-collapse:collapse;border:2px solid var(--line)}th{background:var(--g);color:#000;text-align:left}th,td{padding:9px 10px;border:1px solid var(--line)}tr.act td{background:#b9f9cc;color:#111}
+.pods{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:12px;border:3px solid var(--line);border-radius:14px;padding:16px}
+.pod{border:0;border-radius:8px;padding:12px 0;font:inherit;font-size:18px;color:#fff;text-align:center;cursor:default}button.pod{cursor:pointer}.free{background:var(--ok)}.busy{background:var(--bad)}.off{background:#777}
+.alert{border:2px solid var(--line);border-left:14px solid var(--r);padding:10px 14px;margin:10px 0;display:flex;justify-content:space-between;gap:10px}
+.msg{padding:12px;border-radius:8px;text-align:center;margin:12px 0}.msg.err{background:var(--bad);color:#fff}.msg.good{background:#c2fbd0;color:#052}
+.box{max-width:520px;margin:50px auto;padding:50px 24px;border:2px solid;border-radius:14px;text-align:center;font-size:18px}.box.info{background:#e2f7f8;border-color:#0a4b55;color:#111}.box.good{background:#c2fbd0;border-color:#0b5a2b;color:#111}
+#modal:not(:empty){position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px;z-index:20;overflow:auto}
+.dlg{background:var(--m);color:#fff;border-radius:22px;padding:22px;max-width:540px;width:100%;border:3px solid #000}.dlg.lt{background:var(--card);color:var(--tx);border-color:var(--r)}.dlg .row{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
+.dlg .btn{background:var(--r)}.dlg:not(.lt) .btn{border:1px solid #fff4}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}.hint{color:var(--mut);font-size:12px;text-align:center}
+#demo{position:fixed;left:0;right:0;bottom:0;background:#000c;color:#fff;font-size:12px;padding:6px 12px calc(6px + env(safe-area-inset-bottom,0px));text-align:center;z-index:10}#demo button{font-size:13px;min-height:44px;min-width:44px;margin-left:6px}
+.btn:hover,.tabs button:hover{filter:brightness(1.15)}.btn:active,.tabs button:active{transform:translateY(1px)}button.pod:hover{filter:brightness(1.15)}:focus-visible{outline:3px solid #1a73e8;outline-offset:2px}
+</style></head><body>
+<div id="app"></div><div id="modal"></div>
+<div id="demo">Prototype demo tools: <button data-act="skip">Skip +30 min</button><button data-act="reset">Reset data</button></div>
+<script>
+/* ============ ARCHITECTURE ============
+   DB adapter  -> the ONLY place that knows about storage. To use a real database later,
+                  write an adapter with the same async methods (init, all, insert, update, kv, reset)
+                  that calls your REST/SQL backend, then set DB = YourAdapter.
+   Services    -> Settings, Auth, Reg (FR-001), Booking (FR-002/003), Ovr (FR-005): business rules, no HTML.
+   Views (V)   -> screens from the Figma file, call services only.  Actions (A) -> click handlers. */
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const MIN=6e4,pad=n=>String(n).padStart(2,"0"),hm=t=>{const d=new Date(t);return pad(d.getHours())+":"+pad(d.getMinutes())},
+dur=m=>Math.floor(m/60)+"h "+pad(m%60)+"m",hms=ms=>{ms=Math.max(0,Math.round(ms/1e3));return pad(Math.floor(ms/3600))+":"+pad(Math.floor(ms%3600/60))+":"+pad(ms%60)},
+dkey=t=>new Date(t).toLocaleDateString("en-CA"),tm=t=>new Date(t).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+let OFF=0;const T=()=>Date.now()+OFF;
+const seed=()=>({students:[{id:1,sid:"2023-00123",name:"Cruz, Juan",phone:"09170000001",pw:"pass123",status:"active"},{id:2,sid:"2023-00456",name:"Reyes, Ana",phone:"09170000002",pw:"pass123",status:"active"}],
+staff:[{id:1,sid:"L-001",email:"librarian1@school.edu.ph",pw:"lib123",role:"librarian"},{id:2,sid:"A-001",email:"admin18@school.edu.ph",pw:"admin123",role:"admin"}],
+sessions:[],incidents:[],overrides:[],kv:{offset:0,cfg:{pods:16,maxHrs:3,cooldown:60,grace:10,open:"",close:""}}});
+const Local={d:null,
+_r(){try{const s=localStorage.getItem("lps");if(s)return JSON.parse(s)}catch(e){}return this.d},
+_w(){try{localStorage.setItem("lps",JSON.stringify(this.d))}catch(e){}},
+async init(){this.d=this._r()||seed();this._w()},
+async all(t){this.d=this._r();return structuredClone(this.d[t])},
+async insert(t,r){this.d=this._r();r.id=Math.max(0,...this.d[t].map(x=>x.id))+1;this.d[t].push(r);this._w();return structuredClone(r)},
+async update(t,id,p){this.d=this._r();Object.assign(this.d[t].find(x=>x.id===id),p);this._w()},
+async kv(k,v){this.d=this._r();if(v===undefined)return structuredClone(this.d.kv[k]);this.d.kv[k]=v;this._w()},
+async reset(){this.d=seed();this._w()}};
+const Api={async call(op,p={}){const r=await fetch("api.php",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({op,...p})});
+if(r.status===401&&op!=="login"){try{sessionStorage.clear()}catch(e){}location.reload();return}
+const j=await r.json();if(!r.ok||j.error)throw Error(j.error||"Server error");return j.data},
+init:()=>Api.call("init"),all:t=>Api.call("all",{t}),insert:(t,row)=>Api.call("insert",{t,row}),update:(t,id,patch)=>Api.call("update",{t,id,patch}),kv:(k,v)=>Api.call("kv",{k,v}),reset:()=>Api.call("reset")};
+let DB=Api;
+const Settings={get:()=>DB.kv("cfg"),set:c=>DB.kv("cfg",c)};
+const Auth={login:(id,pw,role)=>DB.call("login",{id:id.trim(),pw,role})};
+const Reg={async signup(f){const t=f.role==="staff"?"staff":"students";
+if(!f.name||!f.sid||!f.phone||!f.pw)throw Error("Please fill in all fields.");
+if(t==="students"&&!/^\d{4}-\d{5}$/.test(f.sid))throw Error("Student ID must look like 2023-00123.");
+if(!/^\d{10,11}$/.test(f.phone.replace(/\D/g,"")))throw Error("Enter a valid phone number.");
+if(f.pw.length<6)throw Error("Password must be at least 6 characters.");
+return DB.call("signup",f)},
+setStatus:(id,status)=>DB.update("students",id,{status})};
+const Booking={
+async current(sid){return(await DB.all("sessions")).find(s=>s.sid===sid&&(s.status==="pending"||s.status==="active"))},
+async cooldownUntil(sid){const c=await Settings.get(),e=(await DB.all("sessions")).filter(s=>s.sid===sid&&s.status==="completed").map(s=>s.actualEnd);return e.length?Math.max(...e)+c.cooldown*MIN:0},
+async occupied(){const m={};(await DB.all("sessions")).forEach(s=>{if(s.status==="pending"||s.status==="active")m[s.pod]=s});return m},
+async eligible(sid){const c=await Settings.get(),st=await DB.call("student",{sid});
+if(!st||st.status!=="active")throw Error("Your registration is "+(st?st.status:"missing")+". Please see the librarian.");
+if(await this.current(sid))throw Error("You already have an active or pending session.");
+const cd=await this.cooldownUntil(sid);if(cd>T())throw Error("Cooldown active. You can book again in "+hms(cd-T())+".");
+if(c.open&&c.close){const n=hm(T());if(n<c.open||n>=c.close)throw Error("Terminal hours are "+c.open+" to "+c.close+".")}return c},
+async request(sid,pod,mins){const c=await this.eligible(sid),occ=await this.occupied();
+if(mins<15||mins>c.maxHrs*60)throw Error("Session length can be up to "+c.maxHrs+" hours.");
+if(occ[pod])throw Error("Study pod is currently occupied.");
+return DB.insert("sessions",{sid,name:"",pod,mins,status:"pending",reqAt:T(),start:null,end:null,actualEnd:null,idHeld:true,override:false})},
+approve:id=>DB.update("sessions",id,{status:"active"}),
+decline:id=>DB.update("sessions",id,{status:"cancelled"}),
+async end(id){await DB.update("sessions",id,{status:"completed"})}};
+const Ovr={async find(q){q=q.trim().toLowerCase();return q&&(await DB.all("students")).find(s=>s.sid.toLowerCase()===q||s.name.toLowerCase().includes(q))},
+async record(st,reason,note,by){const cur=await Booking.current(st.sid);if(cur)await DB.update("sessions",cur.id,{idHeld:false,override:true});return DB.insert("overrides",{sid:st.sid,name:st.name,reason,note,by,at:T(),pod:cur?cur.pod:null})},
+async start(st){const c=await Booking.eligible(st.sid),occ=await Booking.occupied();let p=1;while(occ[p]&&p<=c.pods)p++;if(p>c.pods)throw Error("No pods are free.");
+const n=T();await DB.insert("sessions",{sid:st.sid,name:st.name,pod:p,mins:120,status:"active",reqAt:n,start:n,end:n+120*MIN,actualEnd:null,idHeld:false,override:true})}};
+
+/* ============ UI ============ */
+let ME=null,R={v:"login"},SR="student";
+const od=s=>s.status==="active"&&T()>s.end,STAFF=["dash","regs","logs","sets"],STU=["home","pods"];
+const split=b=>`<div class="split"><div class="side"><h2>LIBRARY<br>POD<br>SYSTEM</h2><small>pod booking</small></div><div class="main"><div class="card">${b}</div></div></div>`;
+const stuShell=b=>`<div class="bar"><span>${esc(ME.name)}</span><span>${new Date(T()).toLocaleDateString(undefined,{dateStyle:"long"})} <button class="btn sm gr" data-act="logout">Log out</button></span></div><div class="wrap">${b}</div>`;
+const stfShell=(a,title,b)=>`<div class="bar"><h1>${title}</h1><span>${ME.role==="admin"?"Admin":"Librarian"} <button class="btn sm gr" data-act="logout">Log out</button></span></div><div class="wrap"><div class="tabs">${[["dash","Dashboard"],["regs","Registrations"],["logs","Logs"],["sets","Settings"]].map(([k,l])=>`<button class="${a===k?"on":""}" data-act="go" data-v="${k}">${l}</button>`).join("")}</div><div style="height:18px"></div>${b}</div>`;
+const V={};
+V.login=()=>split(`<div class="ttl">Welcome, BulSUan!</div><label>ID Number</label><input id="id" placeholder="Enter ID number"><label>Password</label><input id="pw" type="password" placeholder="Enter password"><div id="err"></div><p class="c"><button class="btn" data-enter data-act="login" data-role="student">Log in</button></p><p class="c">Don’t have an account?<br><button class="btn sm" data-act="go" data-v="signup">Sign up</button></p><p class="c"><a href="#" data-act="go" data-v="stafflogin">Staff log in</a></p><p class="hint">Demo student: 2023-00123 / pass123</p>`);
+V.stafflogin=()=>split(`<div class="ttl">STAFF LOG IN</div><label>ID Number</label><input id="id" placeholder="Enter Staff ID number"><div class="msg err" style="padding:6px;font-size:13px">Please keep your credentials hidden from others.</div><label>Password</label><input id="pw" type="password" placeholder="Enter password"><div id="err"></div><p class="c"><button class="btn" data-enter data-act="login" data-role="staff">Log in</button></p><p class="c"><a href="#" data-act="go" data-v="login">Back to student log in</a></p><p class="hint">Demo: L-001 / lib123 (librarian) · A-001 / admin123 (admin)</p>`);
+V.signup=()=>split(`<div class="ttl">SIGN UP</div><label>Full Name</label><input id="n" placeholder="Enter full name"><label>ID Number</label><input id="id" placeholder="Enter ID number (e.g. 2023-00789)"><label>Phone Number</label><input id="ph" placeholder="Enter phone number"><p class="c">Are you a student or library staff?</p><div class="two"><button class="btn on" data-act="role" data-r="student">Student</button><button class="btn" data-act="role" data-r="staff">Staff</button></div><div class="msg err" style="padding:6px;font-size:13px">Please, keep your credentials hidden from others.</div><label>Password</label><input id="pw" type="password" placeholder="Enter password"><div id="err"></div><button class="btn" style="width:100%" data-enter data-act="signup">Submit</button><p class="c"><a href="#" data-act="go" data-v="login">Back to log in</a></p>`);
+V.home=async()=>{const cur=await Booking.current(ME.sid),cd=await Booking.cooldownUntil(ME.sid),n=T();
+if(cur&&cur.status==="pending")return stuShell(`<div class="box info"><p>Processing Request...</p><small>Pod ${cur.pod} · waiting for the librarian to approve</small><p><button class="btn gr sm" data-act="cancel" data-id="${cur.id}">Cancel request</button></p></div>`);
+let ack;try{ack=sessionStorage.getItem("ack")}catch(e){}
+if(cur&&ack!=cur.id)return stuShell(`<div class="box good"><p>Your request has been approved!<br>Please proceed to the librarian to get the pod key</p><p><b>Pod ${cur.pod}</b></p><button class="btn" data-act="ack" data-id="${cur.id}">Continue</button></div>`);
+return stuShell(`<p>Remaining cooldown time – <b data-until="${cd}">${hms(cd-n)}</b></p><p>Remaining reservation time – <b data-until="${cur?cur.end:0}">${hms(cur?cur.end-n:0)}</b>${cur?` (Pod ${cur.pod}, ends ${hm(cur.end)})`:""}</p><div id="err"></div><div class="c" style="margin-top:60px"><div class="ttl" style="max-width:560px;margin:0 auto 14px;color:var(--g)">${cur?"You have an active session":"Would you like to reserve a study pod?"}</div>${cur?`<button class="btn" data-act="endmine" data-id="${cur.id}">End session early</button>`:`<button class="btn" data-act="reserve">Reserve a Pod</button>`}</div>`)};
+V.pods=async()=>{const c=await Settings.get(),occ=await Booking.occupied();
+return stuShell(`<div class="card" style="max-width:640px;margin:auto"><h3 class="c" style="margin-top:0">Study Pods Available</h3><div class="pods">${Array.from({length:c.pods},(_,i)=>`<button class="pod ${occ[i+1]?"busy":"free"}" data-act="pick" data-n="${i+1}">${i+1}</button>`).join("")}</div></div><div id="podmsg"></div><p class="c"><a href="#" data-act="go" data-v="home">Back</a></p>`)};
+V.dash=async()=>{const c=await Settings.get(),occ=await Booking.occupied(),n=T(),L=Object.values(occ).sort((a,b)=>a.pod-b.pod);
+const al=L.filter(od).map(s=>`<div class="alert"><span>Pod ${pad(s.pod)} – session overdue by ${Math.ceil((n-s.end)/MIN)} min (Student: ${esc(s.name)})</span><b><a href="#" data-act="view" data-sid="${s.sid}">View</a></b></div>`).join("");
+const g=Array.from({length:c.pods},(_,i)=>{const s=occ[i+1];return`<div class="pod ${s?od(s)?"busy":"free":"off"}">${i+1}</div>`}).join("");
+const rows=L.map(s=>`<tr><td>${pad(s.pod)}</td><td>${esc(s.name)}</td><td>${s.start?hm(s.start):"pending"}</td><td>${s.end?hm(s.end):"–"}</td><td>${s.status==="pending"?`<button class="btn ok sm" data-act="approve" data-id="${s.id}">Approve</button> <button class="btn sm" data-act="decline" data-id="${s.id}">Decline</button>`:`<button class="btn sm" data-act="end" data-id="${s.id}">${od(s)?"Force End":"End"}</button>`}</td></tr>`).join("")||'<tr><td colspan="5">No active or pending sessions.</td></tr>';
+return stfShell("dash","STAFF – POD DASHBOARD",`${al}<h3 class="c">Study Pods Available</h3><div class="pods">${g}</div><br><div style="overflow-x:auto"><table><tr><th>Pod</th><th>Student</th><th>Start</th><th>End</th><th>Action</th></tr>${rows}</table></div>`)};
+V.regs=async()=>{const st=await DB.all("students"),ss=await DB.all("sessions");
+const rows=st.map(s=>{const mine=ss.filter(x=>x.sid===s.sid),cur=mine.find(x=>x.status==="active"||x.status==="pending");
+const label=s.status!=="active"?s.status:cur?cur.status:mine.some(x=>x.status==="completed")?"completed":"registered";
+return`<tr data-s="${esc((s.sid+" "+s.name).toLowerCase())}" data-st="${label}"><td>${s.sid}</td><td>${esc(s.name)}</td><td style="text-transform:capitalize;background:${label==="active"?"#b9f9cc;color:#111":"transparent"}">${label}</td><td><button class="btn gr sm" data-act="view" data-sid="${s.sid}">View</button> <button class="btn gr sm" data-act="susp" data-id="${s.id}" data-to="${s.status==="suspended"?"active":"suspended"}">${s.status==="suspended"?"Reinstate":"Suspend"}</button> <button class="btn gr sm" data-act="deact" data-id="${s.id}" data-to="${s.status==="deactivated"?"active":"deactivated"}">${s.status==="deactivated"?"Reactivate":"Deactivate"}</button></td></tr>`}).join("");
+return stfShell("regs","STAFF REGISTRATIONS",`<div class="two" style="grid-template-columns:3fr 1fr"><input id="q" placeholder="Search by name or ID number" data-flt><select id="sf" data-flt><option value="">Status: All</option>${["active","pending","completed","registered","suspended","deactivated"].map(x=>`<option>${x}</option>`).join("")}</select></div><div style="overflow-x:auto"><table id="rt"><tr><th>Student ID</th><th>Name</th><th>Status</th><th>Actions</th></tr>${rows}</table></div>`)};
+V.logs=async()=>{const d=R.date||dkey(T()),pf=R.pod||"all",c=await Settings.get();
+const ss=(await DB.all("sessions")).filter(s=>s.start&&dkey(s.start)===d&&(pf==="all"||s.pod==pf));
+const rows=ss.map(s=>`<tr class="${s.status==="active"?"act":""}"><td>${s.sid}</td><td>${pad(s.pod)}</td><td>${hm(s.start)}</td><td>${s.actualEnd?hm(s.actualEnd):"—"}</td><td>${s.actualEnd?dur(Math.round((s.actualEnd-s.start)/MIN)):od(s)?"Overdue":"Active"}${s.override?" · override":""}</td></tr>`).join("")||'<tr><td colspan="5">No sessions for this filter.</td></tr>';
+const inc=(await DB.all("incidents")).reverse().map(i=>`<div class="alert">Incident log: ${esc(i.text)} – ${i.sid} · ${tm(i.at)} · by ${esc(i.by)}</div>`).join(""),
+ov=(await DB.all("overrides")).reverse().map(o=>`<div class="alert">Override: ${esc(o.name)} (${o.sid}) · ${esc(o.reason)} · ${tm(o.at)} · by ${esc(o.by)}</div>`).join("");
+return stfShell("logs","STAFF – LOGS &amp; OVERRIDES",`<div class="two"><input type="date" id="fd" value="${d}" data-chg="date"><select data-chg="pod"><option value="all">Pod: All</option>${Array.from({length:c.pods},(_,i)=>`<option ${pf==i+1?"selected":""} value="${i+1}">Pod ${i+1}</option>`).join("")}</select></div><div style="overflow-x:auto"><table><tr><th>Student ID</th><th>Pod</th><th>Start</th><th>End</th><th>Duration</th></tr>${rows}</table></div><h4>Manual override (Lost / Forgotten ID)</h4><div class="two"><input id="ovq" placeholder="Student name / ID"><select id="ovr"><option>Lost ID</option><option>Forgot ID</option><option>ID damaged</option><option>Other</option></select><button class="btn ok" data-act="ovopen">VERIFY &amp; OVERRIDE</button></div><div id="err"></div>${inc}${ov}`)};
+V.sets=async()=>{if(ME.role!=="admin")return stfShell("sets","STAFF – SETTINGS",'<div class="msg err">Settings are limited to Admin accounts.</div>');
+const c=await Settings.get(),st=await DB.all("staff"),f=(i,l,v,t="number")=>`<div><label>${l}</label><input id="${i}" type="${t}" value="${v}"></div>`;
+return stfShell("sets","STAFF – SETTINGS",`<div class="two">${f("s_p","Number of pods",c.pods)}${f("s_m","Max session length (hrs)",c.maxHrs)}${f("s_c","Cooldown (mins)",c.cooldown)}${f("s_g","Overdue grace period (mins)",c.grace)}${f("s_o","Terminal opens (blank = no limit)",c.open,"time")}${f("s_x","Terminal closes",c.close,"time")}</div><div class="alert" style="display:block"><b>Staff Accounts</b>${st.map(x=>`<div>${esc(x.email||x.sid)} · ${x.role} · <a href="#" data-act="editstaff" data-id="${x.id}"><b>[Edit]</b></a></div>`).join("")}</div><div id="err"></div><button class="btn" data-act="go" data-v="sets">RESET</button> <button class="btn ok" data-act="savecfg">SAVE CHANGES</button>`)};
+
+async function render(){OFF=(await DB.kv("offset"))||0;const ok=ME?(ME.t==="staff"?STAFF:STU).includes(R.v):!STAFF.concat(STU).includes(R.v);if(!ok)R={v:ME?(ME.t==="staff"?"dash":"home"):"login"};
+$("#app").innerHTML=await V[R.v]();tick();$("#demo").style.display=""}
+const go=v=>{R={v};return render()},tick=()=>document.querySelectorAll("[data-until]").forEach(e=>e.textContent=hms(+e.dataset.until-T()));
+const openM=(h,lt)=>{$("#modal").innerHTML=`<div class="dlg ${lt?"lt":""}">${h}</div>`},closeM=()=>{$("#modal").innerHTML=""};
+const msg=(t,k="err")=>{const e=$("#modal #err")||$("#app #err");if(e)e.innerHTML=`<div class="msg ${k}">${t}</div>`};
+const val=i=>($("#modal #"+i)||$("#app #"+i)).value;
+const A={go:d=>go(d.v),
+async login(d){const u=await Auth.login(val("id"),val("pw"),d.role);ME={t:d.role==="staff"?"staff":"student",id:u.id,sid:u.sid,name:u.name||u.email||u.sid,role:u.role};try{sessionStorage.setItem("me",JSON.stringify(ME))}catch(e){}await go(ME.t==="staff"?"dash":"home")},
+async logout(){try{await DB.call("logout")}catch(e){}ME=null;try{sessionStorage.removeItem("me")}catch(e){}await go("login")},
+role(d){SR=d.r;document.querySelectorAll("[data-act=role]").forEach(b=>b.classList.toggle("on",b.dataset.r===SR))},
+async signup(){await Reg.signup({name:val("n"),sid:val("id").trim(),phone:val("ph"),pw:val("pw"),role:SR});await go(SR==="staff"?"stafflogin":"login");msg("Account created. You can log in now.","good")},
+async reserve(){await Booking.eligible(ME.sid);await go("pods")},
+async pick(d){const occ=await Booking.occupied();if(occ[d.n])return $("#podmsg").innerHTML='<div class="msg err">Study pod is currently occupied</div>';
+try{await Booking.eligible(ME.sid)}catch(e){return $("#podmsg").innerHTML=`<div class="msg err">${esc(e.message)}</div>`}
+const c=await Settings.get(),o=[];for(let m=30;m<=c.maxHrs*60;m+=30)o.push(`<option value="${m}">${dur(m)}</option>`);
+openM(`<h3 style="margin-top:0">Reserve Pod ${d.n}</h3><label>Session length (max ${c.maxHrs} hrs)</label><select id="len">${o.join("")}</select><div id="err"></div><div class="row"><button class="btn" data-act="closem">Cancel</button><button class="btn" data-act="confirmreq" data-n="${d.n}">Request pod</button></div>`)},
+async confirmreq(d){await Booking.request(ME.sid,+d.n,+val("len"));closeM();await go("home")},
+async cancel(d){await Booking.decline(+d.id);await render()},
+async ack(d){try{sessionStorage.setItem("ack",d.id)}catch(e){}await render()},
+async endmine(d){await Booking.end(+d.id,"Student");await render()},
+async approve(d){await Booking.approve(+d.id);await render()},async decline(d){await Booking.decline(+d.id);await render()},
+async end(d){await Booking.end(+d.id,ME.role==="admin"?"Admin":"Librarian");await render()},
+async view(d){const s=(await DB.all("students")).find(x=>x.sid===d.sid),ss=(await DB.all("sessions")).filter(x=>x.sid===s.sid),cur=ss.find(x=>x.status==="active"||x.status==="pending"),cd=await Booking.cooldownUntil(s.sid),h=ss.filter(x=>x.status==="completed").reverse().slice(0,5);
+openM(`<div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">${esc(s.name)}</h2><a href="#" data-act="closem">Return to registration</a></div><p>${s.sid} · ${esc(s.phone)} · ${s.status}</p><div class="two"><div class="alert" style="display:block;background:#fbb;color:#111"><b>Current Session</b><br>${cur?`Pod ${cur.pod} · ${cur.start?hm(cur.start)+" – "+hm(cur.end):"pending"}`:"None"}</div><div class="alert" style="display:block;background:#fbb;color:#111"><b>Cooldown</b><br><span style="font-size:24px">${cd>T()?hms(cd-T()):"None"}</span><br><small>Starts after a session ends</small></div></div><table style="margin-top:10px"><tr><th>Date</th><th>Pod</th><th>Start</th><th>End</th><th>Duration</th></tr>${h.map(x=>`<tr><td>${new Date(x.start||x.reqAt).toLocaleDateString([],{month:"short",day:"numeric"})}</td><td>${pad(x.pod)}</td><td>${hm(x.start||x.reqAt)}</td><td>${hm(x.actualEnd)}</td><td>${dur(Math.round((x.actualEnd-(x.start||x.reqAt))/MIN))}</td></tr>`).join("")||'<tr><td colspan="5">No past sessions.</td></tr>'}</table>`,1)},
+async susp(d){if(d.to==="suspended")return openM(`<p>Suspend this registration? The student will not be able to log in or reserve pods until you reinstate them.</p><div class="row"><button class="btn" data-act="closem">Cancel</button><button class="btn" data-act="deactok" data-id="${d.id}" data-to="suspended">Suspend</button></div>`);await Reg.setStatus(+d.id,d.to);await render()},
+async deact(d){if(d.to==="deactivated")return openM(`<p>Deactivate this registration? The student will no longer be able to log in or reserve pods. You can reactivate it later.</p><div class="row"><button class="btn" data-act="closem">Cancel</button><button class="btn" data-act="deactok" data-id="${d.id}" data-to="deactivated">Deactivate</button></div>`);await Reg.setStatus(+d.id,d.to);await render()},
+async deactok(d){await Reg.setStatus(+d.id,d.to);closeM();await render()},
+async ovopen(){const st=await Ovr.find($("#ovq").value);if(!st)return msg("Student not found. Enter a registered name or ID number.");const cur=await Booking.current(st.sid);
+openM(`<p>Verify student and override ID requirement?</p><p>Student: ${esc(st.name)} (${st.sid})<br>${cur?`Pod: ${pad(cur.pod)} · ${cur.start?hm(cur.start)+" to "+hm(cur.end):"pending approval"}`:"No current session"}</p><b>Verify identity (required):</b><br><label style="font-weight:normal"><input type="checkbox" id="c1">Matched student’s face to their registration record</label><br><label style="font-weight:normal"><input type="checkbox" id="c2">Checked another valid ID (e.g., school ID photo, enrollment form, driver’s license)</label><p>Reason: <select id="rs" style="width:auto">${["Lost ID","Forgot ID","ID damaged","Other"].map(x=>`<option ${x===$("#ovr").value?"selected":""}>${x}</option>`).join("")}</select><br>Note (optional): <input id="nt"></p><p>This will:<br>· Allow the session to proceed without holding the student’s ID<br>· Record this override under your name with a timestamp</p><div id="err"></div><div class="row"><button class="btn" data-act="closem">Cancel</button><button class="btn" data-act="ovok" data-sid="${st.sid}">Verify &amp; Override</button></div>`)},
+async ovok(d){if(!$("#c1").checked||!$("#c2").checked)return msg("Both identity checks are required.");const st=await Ovr.find(d.sid),by=ME.role==="admin"?"Admin":"Librarian",cur=await Booking.current(st.sid);
+await Ovr.record(st,val("rs"),val("nt"),by);openM(`<p>Override recorded for ${esc(st.name)} · ${tm(T())} · by ${by}</p><div id="err"></div><div class="row"><button class="btn" data-act="closem" data-v="dash">Return to Dashboard</button>${cur?"":`<button class="btn" data-act="startsess" data-sid="${st.sid}">Start session for this student</button>`}</div>`)},
+async startsess(d){await Ovr.start(await Ovr.find(d.sid));closeM();await go("dash")},
+async closem(d){closeM();if(d.v)await go(d.v)},
+async savecfg(){const c={pods:+val("s_p"),maxHrs:+val("s_m"),cooldown:+val("s_c"),grace:+val("s_g"),open:val("s_o"),close:val("s_x")};
+if(!(c.pods>=1&&c.pods<=64&&c.maxHrs>=1&&c.maxHrs<=12&&c.cooldown>=0&&c.grace>=0))return msg("Please enter valid values (pods 1–64, max session 1–12 hrs).");
+if(!!c.open!==!!c.close)return msg("Set both terminal open and close times, or leave both blank.");await Settings.set(c);msg("Settings saved.","good")},
+async editstaff(d){const s=(await DB.all("staff")).find(x=>x.id===+d.id);openM(`<h3 style="margin-top:0">Edit staff account</h3><label>Email / label</label><input id="em" value="${esc(s.email)}"><label>New password (blank = keep)</label><input id="np" type="password"><div id="err"></div><div class="row"><button class="btn" data-act="closem">Cancel</button><button class="btn" data-act="savestaff" data-id="${s.id}">Save</button></div>`,1)},
+async savestaff(d){const p={email:val("em")};if(val("np")){if(val("np").length<6)return msg("Password must be at least 6 characters.");p.pw=val("np")}await DB.update("staff",+d.id,p);closeM();await render()},
+async skip(){await DB.kv("offset",OFF+30*MIN);await render()},
+async reset(){openM(`<p>Reset all prototype data? This removes every student, session and log you added.</p><div class="row"><button class="btn" data-act="closem">Cancel</button><button class="btn" data-act="resetok">Reset</button></div>`)},
+async resetok(){closeM();await DB.reset();ME=null;try{sessionStorage.clear()}catch(e){}await go("login")}};
+document.addEventListener("click",async e=>{const el=e.target.closest("[data-act]");if(!el)return;e.preventDefault();try{await A[el.dataset.act](el.dataset)}catch(x){msg(esc(x.message))}});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"){const b=$("[data-enter]");if(b&&e.target.tagName==="INPUT")b.click()}});
+document.addEventListener("change",e=>{const k=e.target.dataset.chg;if(k){R[k]=e.target.value;render()}});
+document.addEventListener("input",e=>{if(e.target.dataset.flt===undefined)return;const q=$("#q").value.toLowerCase(),s=$("#sf").value;document.querySelectorAll("#rt tr[data-s]").forEach(r=>r.style.display=r.dataset.s.includes(q)&&(!s||r.dataset.st===s)?"":"none")});
+document.addEventListener("change",e=>{if(e.target.dataset.flt!==undefined)e.target.dispatchEvent(new Event("input",{bubbles:true}))});
+const auto=()=>{if(!$("#modal").innerHTML&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))render()};
+(async()=>{try{await DB.init()}catch(e){document.body.innerHTML="<p style=\"padding:24px\">Cannot reach api.php: "+e.message+". Open this page through Apache (http://localhost/library-pod-system/), not by double-clicking the file.</p>";return}try{ME=JSON.parse(sessionStorage.getItem("me"))}catch(e){}R={v:ME?(ME.t==="staff"?"dash":"home"):"login"};await render();setInterval(tick,1e3);setInterval(auto,5e3);addEventListener("storage",auto)})();
+</script></body></html>
