@@ -3,7 +3,7 @@
 Study-pod booking prototype for BulSU, built from our Figma design and the Mini-SRS.
 
 ## Run it (XAMPP)
-1. Copy this folder into `C:\xampp\htdocs\library-pod-system`.
+1. Copy this folder into `C:\xampp\htdocs\Library-Study-Pod-Booking-System`.
 2. Start **Apache** and **MySQL** in the XAMPP control panel.
 3. Open phpMyAdmin (`http://localhost/phpmyadmin`) → **Import** → choose `schema.sql`.
 4. If your MySQL password is not empty, edit `config.php`.
