@@ -7,7 +7,7 @@ Study-pod booking prototype for BulSU, built from our Figma design and the Mini-
 2. Start **Apache** and **MySQL** in the XAMPP control panel.
 3. Open phpMyAdmin (`http://localhost/phpmyadmin`) → **Import** → choose `schema.sql`.
 4. If your MySQL password is not empty, edit `config.php`.
-5. Open `http://localhost/library-pod-system/` (not by double-clicking `index.html`).
+5. Open `http://localhost/lLibrary-Study-Pod-Booking-System/` (not by double-clicking `index.html`).
 
 The first request seeds demo accounts. The **Reset data** button re-seeds them.
 
